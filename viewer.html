@@ -15,7 +15,7 @@
   html{scroll-behavior:smooth}
   body{font-family:"IBM Plex Sans Thai","Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
   a{color:var(--accent2)}
-  header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+  header{position:sticky;top:0;z-index:50;background:var(--bg);padding:16px 20px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
   header h1{font-size:17px;font-weight:700;color:#cfe6ff}
   header .sub{font-size:12px;color:var(--muted);margin-top:2px}
   .actions{display:flex;gap:8px;flex-wrap:wrap}
@@ -27,6 +27,9 @@
   /* Model viewer */
   .viewer-wrap{position:relative;width:100%;height:72vh;min-height:420px;background:#0b1118;border-bottom:1px solid var(--line)}
   .viewer-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  /* fullscreen mode: model fills the viewport BELOW the sticky header; comment/footer hidden */
+  body.is-full .viewer-wrap{position:fixed;left:0;right:0;top:var(--header-h,64px);bottom:0;height:auto;min-height:0;z-index:40;border-bottom:0}
+  body.is-full main,body.is-full footer{display:none}
 
   /* Content */
   main{max-width:1100px;margin:0 auto;padding:28px 20px 60px}
@@ -67,8 +70,8 @@
     <div class="sub">Central Ecological Plan · Interactive 3D model &amp; public feedback</div>
   </div>
   <div class="actions">
-    <a class="btn" href="./index.html" target="_blank" rel="noopener">เปิดแบบเต็มจอ ↗</a>
-    <a class="btn primary" href="#feedback">แสดงความคิดเห็น ↓</a>
+    <button type="button" class="btn" id="fullBtn" aria-pressed="false">เปิดแบบเต็มจอ ⤢</button>
+    <button type="button" class="btn primary" id="commentBtn">แสดงความคิดเห็น ↓</button>
   </div>
 </header>
 
@@ -181,6 +184,32 @@ const CONFIG = {
 const $ = (id) => document.getElementById(id);
 const form = $("feedbackForm");
 const msg = $("msg");
+
+/* ---- Fullscreen-in-page: model fills the viewport but the header (title + 2
+   buttons) stays, so the user can always call the comment form back. ---- */
+const body = document.body;
+const headerEl = document.querySelector("header");
+function setHeaderVar(){
+  document.documentElement.style.setProperty("--header-h", headerEl.offsetHeight + "px");
+}
+window.addEventListener("resize", setHeaderVar);
+setHeaderVar();
+
+function setFull(on){
+  body.classList.toggle("is-full", on);
+  setHeaderVar(); // header height can change once main/footer are hidden
+  $("fullBtn").textContent = on ? "ออกจากเต็มจอ ⤡" : "เปิดแบบเต็มจอ ⤢";
+  $("fullBtn").setAttribute("aria-pressed", String(on));
+}
+$("fullBtn").addEventListener("click", ()=> setFull(!body.classList.contains("is-full")));
+$("commentBtn").addEventListener("click", ()=>{
+  setFull(false); // leave fullscreen so the form is visible...
+  $("feedback").scrollIntoView({ behavior:"smooth", block:"start" }); // ...then jump to it
+});
+// Esc exits fullscreen
+document.addEventListener("keydown", (e)=>{
+  if(e.key === "Escape" && body.classList.contains("is-full")) setFull(false);
+});
 
 // character counter
 $("comment").addEventListener("input", (e)=> $("cc").textContent = e.target.value.length);
