@@ -4,29 +4,32 @@
 พร้อมชั้นข้อมูล ภูมินิเวศ 7 ประเภท · ความเหมาะสมหลัก (R1–R6) · ความเหมาะสมย่อย (R1.1–R6.2)
 · เขตจังหวัด · ทางหลวง — คลิกพื้นที่เพื่อดูพิกัด UTM และข้อมูล (รวมจังหวัด)
 
-เป็นไฟล์เดียว (`index.html`) ฝังข้อมูลและไลบรารีทั้งหมด ทำงานแบบ offline ได้
+โครงสร้างไฟล์:
+- **`index.html`** — หน้าหลัก แสดงแบบจำลอง 3 มิติ (ฝังจาก `model.html`) พร้อม**แบบฟอร์มแสดงความคิดเห็น**
+- **`model.html`** — แบบจำลอง 3 มิติแบบไฟล์เดียว ฝังข้อมูลและไลบรารีทั้งหมด ทำงานแบบ offline ได้
+- **`viewer.html`** — redirect ไปหน้าหลัก (กันลิงก์เก่า)
 
-## หน้ารับฟังความคิดเห็น (ใหม่)
-ไฟล์ [`viewer.html`](viewer.html) แสดงแบบจำลอง 3 มิติ (ฝังจาก `index.html`) พร้อม**แบบฟอร์มแสดงความคิดเห็น**
-สำหรับเก็บข้อมูลเพื่อนำไปวิเคราะห์ต่อ เปิดได้ที่
-`https://<ชื่อผู้ใช้>.github.io/central-ecological-plan-3d/viewer.html`
+เปิดได้ที่ `https://<ชื่อผู้ใช้>.github.io/central-ecological-plan-3d/`
 
-- **โฮสต์ที่ไหน?** ใช้ GitHub Pages เดิม (ฟรี) — แค่เพิ่มไฟล์ `viewer.html` ก็ใช้งานได้ทันที
+## ช่องรับฟังความคิดเห็น
+หน้าหลัก (`index.html`) มีแผงแสดงความคิดเห็นสำหรับเก็บข้อมูลเพื่อนำไปวิเคราะห์ต่อ
+
+- **โฮสต์ที่ไหน?** ใช้ GitHub Pages เดิม (ฟรี)
 - **เก็บความคิดเห็นที่ไหน?** ค่าเริ่มต้นคือ **Google Sheets** ของคุณเอง ผ่าน Google Apps Script (ฟรี, ข้อมูลเป็นของคุณ
   เรียง/กรอง/ส่งออก CSV เพื่อวิเคราะห์ได้) — ตั้งค่าครั้งเดียวตาม [`apps-script/README.md`](apps-script/README.md)
-  แล้วนำ Web App URL มาวางในตัวแปร `CONFIG.ENDPOINT` ของ `viewer.html`
+  แล้วนำ Web App URL มาวางในตัวแปร `CONFIG.ENDPOINT` ใน `index.html`
 - ก่อนเชื่อมต่อ Google Sheets ฟอร์มจะเก็บสำเนาไว้ในเบราว์เซอร์และเปิดอีเมลสำรองให้ จึงไม่มีความคิดเห็นสูญหาย
-- ดูสำเนาในเครื่อง/ส่งออก CSV ได้โดยเปิด `viewer.html#admin`
+- ดูสำเนาในเครื่อง/ส่งออก CSV ได้โดยเปิดหน้าหลักแล้วต่อท้าย URL ด้วย `#admin`
 
 ## วิธีเผยแพร่ด้วย GitHub Pages
 1. สร้างบัญชี GitHub (ฟรี) แล้วสร้าง repository ใหม่แบบ **Public** เช่นชื่อ `central-ecological-plan-3d`
-2. กดปุ่ม **Add file ▸ Upload files** แล้วลากไฟล์ `index.html` (และ README นี้) วาง → **Commit changes**
+2. กดปุ่ม **Add file ▸ Upload files** แล้วลากไฟล์ `index.html`, `model.html` (และ README นี้) วาง → **Commit changes**
 3. ไปที่ **Settings ▸ Pages** → ในหัวข้อ Build and deployment ▸ Source เลือก **Deploy from a branch**
    → Branch: **main** , โฟลเดอร์ **/(root)** → **Save**
 4. รอ ~1–2 นาที จะได้ลิงก์: `https://<ชื่อผู้ใช้>.github.io/central-ecological-plan-3d/`
 
 ## อัปเดตเวอร์ชันใหม่
-อัปโหลด `index.html` ทับไฟล์เดิม (Upload files แล้ว commit) เว็บจะอัปเดตอัตโนมัติใน 1–2 นาที
+อัปโหลด `model.html` (ตัวแบบจำลอง) ทับไฟล์เดิม (Upload files แล้ว commit) เว็บจะอัปเดตอัตโนมัติใน 1–2 นาที
 
 ## แหล่งข้อมูล
 - ภูมิประเทศ: output_hh + dem30 (400 ม., EPSG:32647) · ภูมินิเวศ v9 · ความเหมาะสม R1–R6 v7
