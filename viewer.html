@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>แผนผังภูมินิเวศภาคกลาง · 3D + รับฟังความคิดเห็น</title>
+<meta name="description" content="แบบจำลอง 3 มิติ แผนผังภูมินิเวศภาคกลาง พร้อมช่องทางแสดงความคิดเห็นเพื่อการวิเคราะห์"/>
+<style>
+  :root{
+    --bg:#0e1620; --panel:rgba(18,28,38,.92); --line:#2a3b4d; --line2:#32485d;
+    --text:#eef3f7; --muted:#8aa1b5; --accent:#2e6da4; --accent2:#5b9bd5;
+    --field:#13202c; --ok:#2e9e6b; --err:#c0504d;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:"IBM Plex Sans Thai","Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+  a{color:var(--accent2)}
+  header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+  header h1{font-size:17px;font-weight:700;color:#cfe6ff}
+  header .sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{background:#1d2e3f;color:#cfe0ee;border:1px solid var(--line2);border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-block}
+  .btn:hover{background:#26405a}
+  .btn.primary{background:var(--accent);border-color:var(--accent2);color:#fff}
+  .btn.primary:hover{background:#3a82c4}
+
+  /* Model viewer */
+  .viewer-wrap{position:relative;width:100%;height:72vh;min-height:420px;background:#0b1118;border-bottom:1px solid var(--line)}
+  .viewer-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+  /* Content */
+  main{max-width:1100px;margin:0 auto;padding:28px 20px 60px}
+  .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:start}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}.viewer-wrap{height:60vh}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+  .card h2{font-size:16px;color:#cfe6ff;margin-bottom:10px}
+  .card p{font-size:13.5px;color:#cdd9e3;margin-bottom:10px}
+  .card ul{font-size:13.5px;color:#cdd9e3;margin:8px 0 8px 18px}
+  .card li{margin:4px 0}
+
+  /* Form */
+  form .field{margin-bottom:14px}
+  label{display:block;font-size:12.5px;color:#9fb4c6;margin-bottom:5px}
+  label .req{color:var(--accent2)}
+  input,select,textarea{width:100%;background:var(--field);color:var(--text);border:1px solid var(--line2);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent2);box-shadow:0 0 0 2px rgba(91,155,213,.25)}
+  textarea{resize:vertical;min-height:120px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:480px){.two{grid-template-columns:1fr}}
+  .submit-row{display:flex;align-items:center;gap:12px;margin-top:6px}
+  #msg{font-size:13px;min-height:18px}
+  #msg.ok{color:var(--ok)} #msg.err{color:var(--err)}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:6px}
+  .count{font-size:11px;color:var(--muted);text-align:right;margin-top:3px}
+
+  footer{border-top:1px solid var(--line);padding:18px 20px;font-size:12px;color:var(--muted);text-align:center}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+  .toolbar .btn{font-size:12px;padding:6px 10px}
+  .saved-note{font-size:11.5px;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>แผนผังภูมินิเวศภาคกลาง — แบบจำลอง 3 มิติ</h1>
+    <div class="sub">Central Ecological Plan · Interactive 3D model &amp; public feedback</div>
+  </div>
+  <div class="actions">
+    <a class="btn" href="./index.html" target="_blank" rel="noopener">เปิดแบบเต็มจอ ↗</a>
+    <a class="btn primary" href="#feedback">แสดงความคิดเห็น ↓</a>
+  </div>
+</header>
+
+<!-- 3D model embedded from the existing self-contained page -->
+<div class="viewer-wrap">
+  <iframe src="./index.html" title="แบบจำลอง 3 มิติ แผนผังภูมินิเวศภาคกลาง" loading="eager" allowfullscreen></iframe>
+</div>
+
+<main>
+  <div class="grid">
+    <section class="card" id="about">
+      <h2>เกี่ยวกับแบบจำลองนี้</h2>
+      <p>แบบจำลอง 3 มิติแบบโต้ตอบของแผนผังภูมินิเวศภาคกลาง แสดงภูมิประเทศจริง (DEM) พร้อมชั้นข้อมูล:</p>
+      <ul>
+        <li>ภูมินิเวศ 7 ประเภท</li>
+        <li>ความเหมาะสมหลัก (R1–R6) และความเหมาะสมย่อย (R1.1–R6.2)</li>
+        <li>เขตจังหวัด 22 จังหวัด · ทางหลวง (กรมทางหลวง)</li>
+      </ul>
+      <p>คลิกพื้นที่บนแบบจำลองเพื่อดูพิกัด UTM และข้อมูลรายพื้นที่ · ใช้เมาส์/นิ้วเพื่อหมุน ซูม และเลื่อน</p>
+      <p>เราเปิดรับความคิดเห็นเพื่อนำไปวิเคราะห์และปรับปรุงแผนผัง โปรดกรอกแบบฟอร์มทางขวา (หรือด้านล่างบนมือถือ)</p>
+    </section>
+
+    <section class="card" id="feedback">
+      <h2>แสดงความคิดเห็น / ข้อเสนอแนะ</h2>
+      <form id="feedbackForm" autocomplete="on">
+        <div class="two">
+          <div class="field">
+            <label for="name">ชื่อ–นามสกุล</label>
+            <input type="text" id="name" name="name" maxlength="120" placeholder="(ไม่บังคับ)"/>
+          </div>
+          <div class="field">
+            <label for="org">หน่วยงาน / องค์กร</label>
+            <input type="text" id="org" name="org" maxlength="120" placeholder="(ไม่บังคับ)"/>
+          </div>
+        </div>
+
+        <div class="two">
+          <div class="field">
+            <label for="email">อีเมล (หากต้องการให้ติดต่อกลับ)</label>
+            <input type="email" id="email" name="email" maxlength="120" placeholder="(ไม่บังคับ)"/>
+          </div>
+          <div class="field">
+            <label for="category">ประเภทความคิดเห็น</label>
+            <select id="category" name="category">
+              <option value="ภาพรวม">ภาพรวมแผนผัง</option>
+              <option value="ภูมินิเวศ">ภูมินิเวศ 7 ประเภท</option>
+              <option value="ความเหมาะสม">ความเหมาะสม (R1–R6)</option>
+              <option value="ขอบเขต">ขอบเขตจังหวัด</option>
+              <option value="ทางหลวง">ทางหลวง / โครงสร้างพื้นฐาน</option>
+              <option value="ข้อมูล">ความถูกต้องของข้อมูล</option>
+              <option value="การใช้งาน">การใช้งานแบบจำลอง 3 มิติ</option>
+              <option value="อื่นๆ">อื่นๆ</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="area">พื้นที่ / จังหวัดที่เกี่ยวข้อง</label>
+          <input type="text" id="area" name="area" maxlength="120" placeholder="เช่น นครสวรรค์, ลุ่มน้ำเจ้าพระยา (ไม่บังคับ)"/>
+        </div>
+
+        <div class="field">
+          <label for="comment">ความคิดเห็น <span class="req">*</span></label>
+          <textarea id="comment" name="comment" maxlength="3000" required placeholder="รายละเอียดความคิดเห็น ข้อเสนอแนะ หรือข้อมูลเพิ่มเติม..."></textarea>
+          <div class="count"><span id="cc">0</span>/3000</div>
+        </div>
+
+        <!-- simple honeypot to reduce spam; bots fill it, humans don't see it -->
+        <div style="position:absolute;left:-9999px" aria-hidden="true">
+          <label>อย่ากรอกช่องนี้<input type="text" id="website" name="website" tabindex="-1" autocomplete="off"/></label>
+        </div>
+
+        <div class="submit-row">
+          <button type="submit" class="btn primary" id="submitBtn">ส่งความคิดเห็น</button>
+          <span id="msg" role="status" aria-live="polite"></span>
+        </div>
+        <div class="saved-note">ความคิดเห็นจะถูกบันทึกไว้สำหรับการวิเคราะห์ · สำเนาจะถูกเก็บในเบราว์เซอร์นี้ด้วยเพื่อความปลอดภัยของข้อมูล</div>
+      </form>
+
+      <!-- Admin tools: visible only when the URL ends with #admin -->
+      <div class="toolbar" id="adminTools" style="display:none">
+        <button class="btn" id="exportBtn">ดาวน์โหลดสำเนาในเครื่อง (CSV)</button>
+        <button class="btn" id="clearBtn">ล้างสำเนาในเครื่อง</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  แหล่งข้อมูล: ภูมิประเทศ output_hh + dem30 (EPSG:32647) · ภูมินิเวศ v9 · ความเหมาะสม R1–R6 v7 · ขอบเขต 22 จังหวัด · ทางหลวง DOH
+</footer>
+
+<script>
+/* ============================================================================
+   การตั้งค่า — Comment backend configuration
+   ----------------------------------------------------------------------------
+   ตัวเลือกที่ใช้: Google Sheets ผ่าน Google Apps Script (ฟรี, ข้อมูลเป็นของคุณเอง)
+   วิธีตั้งค่า: ดูไฟล์ apps-script/README.md  แล้วนำ URL ของ Web App มาวางด้านล่าง
+
+   ENDPOINT ว่าง = ยังไม่เชื่อมต่อ → ฟอร์มจะบันทึกลงเบราว์เซอร์ และเปิดอีเมลสำรอง
+============================================================================ */
+const CONFIG = {
+  // วาง Web App URL ของ Google Apps Script ที่นี่ (ลงท้ายด้วย /exec)
+  ENDPOINT: "https://script.google.com/macros/s/AKfycbw257zqf6HKaROWIKGa1EruHznF1E5TQEQTaL0zPwxaKy8X79e1Oc98PTRwtnVdRvz2yA/exec",
+  // อีเมลสำรอง: ใช้เมื่อยังไม่ได้ตั้งค่า ENDPOINT (ปุ่มส่งจะเปิดโปรแกรมอีเมล)
+  FALLBACK_EMAIL: "tna.grfx@gmail.com",
+  STORAGE_KEY: "cep3d_comments_v1"
+};
+
+const $ = (id) => document.getElementById(id);
+const form = $("feedbackForm");
+const msg = $("msg");
+
+// character counter
+$("comment").addEventListener("input", (e)=> $("cc").textContent = e.target.value.length);
+
+// show admin tools when visiting ...viewer.html#admin
+function refreshAdmin(){ $("adminTools").style.display = (location.hash === "#admin") ? "flex" : "none"; }
+window.addEventListener("hashchange", refreshAdmin); refreshAdmin();
+
+function nowISO(){ return new Date().toISOString(); }
+
+function collect(){
+  return {
+    timestamp: nowISO(),
+    name: $("name").value.trim(),
+    org: $("org").value.trim(),
+    email: $("email").value.trim(),
+    category: $("category").value,
+    area: $("area").value.trim(),
+    comment: $("comment").value.trim(),
+    page: location.href,
+    userAgent: navigator.userAgent
+  };
+}
+
+// keep a local backup so no submission is ever lost
+function saveLocal(rec){
+  try{
+    const arr = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY) || "[]");
+    arr.push(rec);
+    localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(arr));
+  }catch(e){ /* storage may be full/blocked; ignore */ }
+}
+
+function setMsg(text, kind){ msg.textContent = text; msg.className = kind || ""; }
+
+async function sendToBackend(rec){
+  // application/x-www-form-urlencoded keeps it a "simple request" (no CORS preflight).
+  // Apps Script reads e.parameter.* ; we use no-cors and treat completion as success.
+  const body = new URLSearchParams(rec);
+  await fetch(CONFIG.ENDPOINT, { method:"POST", mode:"no-cors", body });
+}
+
+function mailtoFallback(rec){
+  const subject = encodeURIComponent("ความคิดเห็น: แผนผังภูมินิเวศภาคกลาง 3D");
+  const lines = [
+    "ชื่อ: " + rec.name, "หน่วยงาน: " + rec.org, "อีเมล: " + rec.email,
+    "ประเภท: " + rec.category, "พื้นที่: " + rec.area, "", "ความคิดเห็น:", rec.comment,
+    "", "— เวลา: " + rec.timestamp
+  ].join("\n");
+  return "mailto:" + CONFIG.FALLBACK_EMAIL + "?subject=" + subject + "&body=" + encodeURIComponent(lines);
+}
+
+form.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  if($("website").value){ return; } // honeypot tripped → silently drop (bot)
+  if(!$("comment").value.trim()){ setMsg("กรุณากรอกความคิดเห็น", "err"); return; }
+
+  const rec = collect();
+  saveLocal(rec);
+  $("submitBtn").disabled = true;
+  setMsg("กำลังส่ง...", "");
+
+  try{
+    if(CONFIG.ENDPOINT){
+      await sendToBackend(rec);
+      setMsg("ขอบคุณสำหรับความคิดเห็น! บันทึกเรียบร้อยแล้ว ✓", "ok");
+      form.reset(); $("cc").textContent = "0";
+    } else {
+      // backend not configured yet → fall back to email so feedback still reaches you
+      setMsg("ยังไม่ได้เชื่อมต่อระบบจัดเก็บ — กำลังเปิดอีเมลสำรอง...", "");
+      window.location.href = mailtoFallback(rec);
+      setMsg("บันทึกสำเนาในเบราว์เซอร์แล้ว และเปิดอีเมลสำรองให้ ✓", "ok");
+    }
+  }catch(err){
+    // network failed but local copy is safe
+    setMsg("ส่งไม่สำเร็จ (เครือข่าย) — บันทึกสำเนาในเบราว์เซอร์ไว้แล้ว โปรดลองใหม่ภายหลัง", "err");
+  }finally{
+    $("submitBtn").disabled = false;
+  }
+});
+
+/* ---- Admin: export / clear local backup copies ---- */
+function toCSV(rows){
+  if(!rows.length) return "";
+  const cols = ["timestamp","name","org","email","category","area","comment","page","userAgent"];
+  const esc = (v)=> '"' + String(v==null?"":v).replace(/"/g,'""') + '"';
+  return cols.join(",") + "\n" + rows.map(r=>cols.map(c=>esc(r[c])).join(",")).join("\n");
+}
+$("exportBtn").addEventListener("click", ()=>{
+  const rows = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY) || "[]");
+  if(!rows.length){ alert("ยังไม่มีสำเนาในเครื่อง"); return; }
+  const blob = new Blob(["﻿"+toCSV(rows)], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "comments_local_backup.csv";
+  a.click(); URL.revokeObjectURL(a.href);
+});
+$("clearBtn").addEventListener("click", ()=>{
+  if(confirm("ลบสำเนาความคิดเห็นที่เก็บในเบราว์เซอร์นี้?")){
+    localStorage.removeItem(CONFIG.STORAGE_KEY);
+    alert("ล้างเรียบร้อย");
+  }
+});
+</script>
+</body>
+</html>
