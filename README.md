@@ -6,6 +6,18 @@
 
 เป็นไฟล์เดียว (`index.html`) ฝังข้อมูลและไลบรารีทั้งหมด ทำงานแบบ offline ได้
 
+## หน้ารับฟังความคิดเห็น (ใหม่)
+ไฟล์ [`viewer.html`](viewer.html) แสดงแบบจำลอง 3 มิติ (ฝังจาก `index.html`) พร้อม**แบบฟอร์มแสดงความคิดเห็น**
+สำหรับเก็บข้อมูลเพื่อนำไปวิเคราะห์ต่อ เปิดได้ที่
+`https://<ชื่อผู้ใช้>.github.io/central-ecological-plan-3d/viewer.html`
+
+- **โฮสต์ที่ไหน?** ใช้ GitHub Pages เดิม (ฟรี) — แค่เพิ่มไฟล์ `viewer.html` ก็ใช้งานได้ทันที
+- **เก็บความคิดเห็นที่ไหน?** ค่าเริ่มต้นคือ **Google Sheets** ของคุณเอง ผ่าน Google Apps Script (ฟรี, ข้อมูลเป็นของคุณ
+  เรียง/กรอง/ส่งออก CSV เพื่อวิเคราะห์ได้) — ตั้งค่าครั้งเดียวตาม [`apps-script/README.md`](apps-script/README.md)
+  แล้วนำ Web App URL มาวางในตัวแปร `CONFIG.ENDPOINT` ของ `viewer.html`
+- ก่อนเชื่อมต่อ Google Sheets ฟอร์มจะเก็บสำเนาไว้ในเบราว์เซอร์และเปิดอีเมลสำรองให้ จึงไม่มีความคิดเห็นสูญหาย
+- ดูสำเนาในเครื่อง/ส่งออก CSV ได้โดยเปิด `viewer.html#admin`
+
 ## วิธีเผยแพร่ด้วย GitHub Pages
 1. สร้างบัญชี GitHub (ฟรี) แล้วสร้าง repository ใหม่แบบ **Public** เช่นชื่อ `central-ecological-plan-3d`
 2. กดปุ่ม **Add file ▸ Upload files** แล้วลากไฟล์ `index.html` (และ README นี้) วาง → **Commit changes**
