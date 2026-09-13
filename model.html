@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="th"><head><meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>แผนผังภูมินิเวศภาคกลาง · แบบจำลอง 3 มิติ (ฉบับ v6.1 — ปรับระบบซูม)</title>
+<title>แผนผังภูมินิเวศภาคกลาง · แบบจำลอง 3 มิติ (ฉบับ v6.3 — ปรับระบบซูม)</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;overflow:hidden;font-family:"IBM Plex Sans Thai",sans-serif;background:#0e1620;color:#eef3f7}
@@ -241,7 +241,12 @@ const _zs=document.createElement("style");_zs.textContent=`
  background:#7fb2e5;border:2px solid #0e1620;cursor:pointer}
 #zslider::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:#7fb2e5;
  border:2px solid #0e1620;cursor:pointer}
-#zscale{font-size:10.5px;color:#9fb4c6;text-align:center;margin-top:5px;white-space:nowrap}
+/* v6.2: ตัวคูณการซูมเป็นตัวหลัก อ่านง่ายกว่าตัวเลขความกว้างเป็นกิโลเมตร */
+#zscale{font-size:12px;font-weight:600;color:#dde8f1;text-align:center;margin-top:6px;white-space:nowrap;cursor:default}
+/* แถบมาตราส่วนกราฟิก แบบเดียวกับที่มีในแผนที่ทั่วไป บอกระยะจริงบนพื้นที่ */
+#zbarwrap{display:flex;align-items:flex-end;justify-content:center;gap:7px;margin-top:5px}
+#zbar{display:block;height:5px;width:60px;flex:none;border:1px solid #9fb4c6;border-top:none;background:transparent}
+#zbartxt{font-size:10px;color:#9fb4c6;white-space:nowrap;line-height:1}
 /* มือถือ: เรียงเป็นชั้น แผงข้อมูล > แถบซูม > ปุ่มชั้นข้อมูล ไม่ทับกัน */
 @media(max-width:680px){
  #zoomui{left:8px;right:8px;top:auto;bottom:74px;padding:7px 10px 5px;
@@ -270,21 +275,40 @@ const _zs=document.createElement("style");_zs.textContent=`
 const _zb=document.createElement("div");_zb.id="zoomui";
 _zb.innerHTML='<div class="zrow"><button id="zout" title="ซูมออก">−</button>'
  +'<input id="zslider" type="range" min="0" max="1000" step="1" value="500"/>'
- +'<button id="zin" title="ซูมเข้า">+</button></div><div id="zscale"></div>';
+ +'<button id="zin" title="ซูมเข้า">+</button></div>'
+ +'<div id="zscale" title="x1 คือมุมมองที่เห็นพื้นที่ภาคกลางเต็มทั้งผืน"></div>'
+ +'<div id="zbarwrap"><i id="zbar"></i><span id="zbartxt"></span></div>';
 document.body.appendChild(_zb);
-const zSl=document.getElementById("zslider"),zSc=document.getElementById("zscale");
+const zSl=document.getElementById("zslider"),zSc=document.getElementById("zscale"),
+      zBar=document.getElementById("zbar"),zBarT=document.getElementById("zbartxt");
 document.getElementById("zin").onclick=()=>zoomStep(0.72);
 document.getElementById("zout").onclick=()=>zoomStep(1/0.72);
 let _zdrag=false;
 zSl.addEventListener("input",()=>{_zdrag=true;
   radT=Math.max(RMIN,Math.min(RMAX,RMAX*Math.pow(RMIN/RMAX,+zSl.value/1000)));zoomHUD();});
 zSl.addEventListener("change",()=>{_zdrag=false;});
+/* v6.2: ระยะกลม ๆ ที่ยอมให้แถบมาตราส่วนใช้ หน่วยกิโลเมตร */
+const ZNICE=[0.1,0.2,0.5,1,2,5,10,20,50,100,200,500,1000];
 function zoomHUD(){
   if(!zSc)return;
   const vf=cam.fov*Math.PI/180;
   const wKm=2*radT*Math.tan(vf/2)*cam.aspect*(width_m/PW)/1000;
-  const txt="มุมมองกว้าง ~"+(wKm>=10?Math.round(wKm):wKm.toFixed(1))+" กม.";
+  /* ตัวคูณการซูม: x1 คือระยะที่เห็นฐานแบบจำลองเต็มพอดี ซึ่งเป็นเพดานการซูมออกด้วย
+     จึงเป็นจุดอ้างอิงที่ผู้ใช้เห็นเองได้ ไม่ต้องอธิบาย */
+  const zx=RMAX/radT;
+  const txt="ซูม \u00d7"+(zx>=10?Math.round(zx):zx.toFixed(1));
   if(zSc.textContent!==txt)zSc.textContent=txt;
+  /* แถบมาตราส่วน: เลือกระยะกลมที่ยาวที่สุดซึ่งยังไม่เกิน 132 จุดบนจอ
+     หมายเหตุ ภาพเป็นมุมเอียง มาตราส่วนจึงใช้ได้ที่บริเวณกลางจอ */
+  if(zBar&&zBarT&&wKm>0){
+    const kmPx=wKm/innerWidth, MAXPX=132;
+    let km=ZNICE[0];
+    for(let i=ZNICE.length-1;i>=0;i--){if(ZNICE[i]/kmPx<=MAXPX){km=ZNICE[i];break;}}
+    const px=Math.max(24,Math.round(km/kmPx))+"px";
+    const lb=km>=1?km+" กม.":Math.round(km*1000)+" ม.";
+    if(zBar.style.width!==px)zBar.style.width=px;
+    if(zBarT.textContent!==lb)zBarT.textContent=lb;
+  }
   if(!_zdrag)zSl.value=Math.round(Math.max(0,Math.min(1,
     Math.log(radT/RMAX)/Math.log(RMIN/RMAX)))*1000);
 }
@@ -449,10 +473,11 @@ document.getElementById("load").style.display="none";
   }
 
   /* ---- หมุด (pin) ---- */
-  let marker=null,markUV=null;
+  let marker=null,markUV=null,PIN_H=1;
   function makeMarker(){
     const g=new THREE.Group();
     const stem=Math.max(6.5,PW*0.038);
+    PIN_H=stem*1.26; /* ก้าน + หัวหมุด วัดจากปลายแหลมที่ผิวดินขึ้นไป */
     const cone=new THREE.Mesh(new THREE.ConeGeometry(stem*0.13,stem,10),new THREE.MeshBasicMaterial({color:0xff3b30}));
     cone.rotation.x=-Math.PI/2; cone.position.z=stem/2; g.add(cone);
     const ball=new THREE.Mesh(new THREE.SphereGeometry(stem*0.26,16,12),new THREE.MeshBasicMaterial({color:0xff3b30}));
@@ -463,12 +488,32 @@ document.getElementById("load").style.display="none";
     if(!marker){marker=makeMarker();group.add(marker);}
     markUV={ue,ve};
     const lx=(ue-0.5)*PW,ly=(ve-0.5)*PH,h=sampleH(ue,ve)*Zunit*EXAG;
-    marker.position.set(lx,ly,h); marker.visible=true;
+    marker.position.set(lx,ly,h); marker.visible=true; markerScale();
   }
+  /* v6.3: หมุดขนาดคงที่ในหน่วยฉาก (สูง 9.6 หน่วย หรือราว 20 กิโลเมตรจริง)
+     มองจากมุมมองเริ่มต้นได้ขนาดพอดี แต่พอซูมเข้าใกล้สุดหมุดจะสูงราวครึ่งจอ บังแผนที่
+     แก้เป็น ย่อ-ขยายหมุดตามระยะจากกล้องถึงตัวหมุด ให้ความสูงบนจอคงที่
+     ขนาดบนจอผูกกับความสูงหน้าต่าง จอเล็กหมุดก็เล็กตาม ปลายแหลมยังปักอยู่ที่จุดเดิมเสมอ
+     เพราะย่อ-ขยายรอบจุดกำเนิดของกลุ่มหมุด ซึ่งอยู่ที่ผิวดินพอดี */
+  const _mwp=new THREE.Vector3();
+  function markerScale(){
+    if(!marker||!marker.visible||typeof cam==="undefined")return;
+    const px=Math.max(28,Math.min(46,innerHeight*0.052));
+    const d=cam.position.distanceTo(marker.getWorldPosition(_mwp));
+    const wh=2*d*Math.tan(cam.fov*Math.PI/360)*(px/innerHeight);
+    const sc=Math.max(0.02,Math.min(3,wh/PIN_H));
+    if(Math.abs(marker.scale.x-sc)>1e-4)marker.scale.setScalar(sc);
+  }
+  /* เรียกต่อท้าย upd() ซึ่งเป็นจุดเดียวที่กล้องขยับ ขนาดหมุดจึงตรงกับตำแหน่งกล้องในเฟรมเดียวกัน
+     (ถ้าแยกเป็นลูปของตัวเอง ขนาดจะตามหลังกล้องหนึ่งเฟรม เห็นชัดเวลาเครื่องเรนเดอร์ช้า) */
+  if(typeof upd==="function"){const _u=upd;upd=function(){_u.apply(null,arguments);markerScale();};}
   function flyTo(ue,ve){
     const lx=(ue-0.5)*PW,ly=(ve-0.5)*PH,h=sampleH(ue,ve)*Zunit*EXAG;
     const w=group.localToWorld(new THREE.Vector3(lx,ly,h));
-    tgt.copy(w); rad=Math.min(rad,210); if(rad<170)rad=190; if(pol<0.30)pol=0.42; upd();
+    tgt.copy(w); rad=Math.min(rad,210); if(rad<170)rad=190; if(pol<0.30)pol=0.42;
+    /* v6.3: ตั้งค่าเป้าหมายให้ตรงกันด้วย ไม่งั้นลูปหน่วงของ v6 จะดึงกล้องกลับที่เดิม */
+    if(typeof radT==="number"){radT=rad;tgtT.copy(tgt);}
+    upd();
   }
   document.getElementById("exag").addEventListener("input",()=>{ if(markUV)placeMarker(markUV.ue,markUV.ve); });
 
